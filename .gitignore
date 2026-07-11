@@ -26,3 +26,9 @@ data/processed/*
 !data/processed/.gitkeep
 secrets/
 credentials/
+application_packets/
+generated_outputs/
+uploads/
+private_documents/
+local_data/
+local_repos/

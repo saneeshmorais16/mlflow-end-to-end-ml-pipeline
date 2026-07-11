@@ -20,6 +20,17 @@ Many ML projects fail to show the operational pieces around a model. This projec
 - pytest
 - GitHub Actions
 
+## Core Features
+
+- Generated safe sample churn dataset.
+- Data validation and preprocessing pipeline.
+- Logistic Regression and Random Forest training.
+- MLflow experiment tracking.
+- Best-model artifact saving.
+- FastAPI health and prediction endpoints.
+- Docker support.
+- Automated tests with GitHub Actions.
+
 ## ML Pipeline Architecture
 
 ```text
@@ -148,6 +159,14 @@ docker run -p 8000:8000 mlflow-end-to-end-ml-pipeline
 ```
 
 The container expects a trained model artifact to be present in `models/` at build time or mounted at runtime.
+
+## Demo Placeholder
+
+Screenshots or a short demo GIF can be added after running the API and MLflow UI with generated sample data only.
+
+## Honest Project Status
+
+This is a portfolio starter project, not a production deployment. It demonstrates the structure of an end-to-end ML workflow with generated non-sensitive data.
 
 ## Tests
 
