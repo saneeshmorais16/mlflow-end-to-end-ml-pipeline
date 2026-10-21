@@ -3,6 +3,7 @@ from __future__ import annotations
 import mlflow
 import mlflow.sklearn
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -39,7 +40,7 @@ def train_pipeline(data_path: str | None = None, tracking_uri: str | None = None
 
     x = data[FEATURE_COLUMNS]
     y = data[TARGET_COLUMN]
-    x_train, x_test, y_train, y_test = train_test_split(
+    x_development, x_test, y_development, y_test = train_test_split(
         x,
         y,
         test_size=0.2,
@@ -47,6 +48,11 @@ def train_pipeline(data_path: str | None = None, tracking_uri: str | None = None
         stratify=y,
     )
 
+    x_train, x_validation, y_train, y_validation = train_test_split(
+        x_development, y_development, test_size=0.25,
+        random_state=RANDOM_STATE, stratify=y_development,
+    )
+    comparison = {}
     best_result: dict | None = None
     for model_name, estimator in build_models().items():
         pipeline = Pipeline(
@@ -58,10 +64,11 @@ def train_pipeline(data_path: str | None = None, tracking_uri: str | None = None
 
         with mlflow.start_run(run_name=model_name):
             pipeline.fit(x_train, y_train)
-            metrics = evaluate_classifier(pipeline, x_test, y_test)
+            metrics = evaluate_classifier(pipeline, x_validation, y_validation)
             params = estimator.get_params()
             mlflow.log_params({f"model__{key}": value for key, value in params.items() if isinstance(value, (str, int, float, bool)) or value is None})
-            mlflow.log_metrics(metrics)
+            mlflow.log_metrics({f"validation_{key}": value for key, value in metrics.items()})
+            comparison[model_name] = metrics
             mlflow.sklearn.log_model(pipeline, artifact_path="model")
 
             result = {
@@ -75,6 +82,11 @@ def train_pipeline(data_path: str | None = None, tracking_uri: str | None = None
     if best_result is None:
         raise RuntimeError("Training did not produce a model.")
 
+    # Select on validation only; the held-out test never determines the winner.
+    validation_metrics = best_result["metrics"]
+    best_result["metrics"] = evaluate_classifier(best_result["model"], x_test, y_test)
+    dummy = DummyClassifier(strategy="most_frequent").fit(x_train, y_train)
+    baseline_metrics = evaluate_classifier(dummy, x_test, y_test)
     model_path = save_best_model(best_result["model"])
     metrics_path = save_metrics(
         {
@@ -87,6 +99,10 @@ def train_pipeline(data_path: str | None = None, tracking_uri: str | None = None
     return {
         "best_model": best_result["model_name"],
         "metrics": best_result["metrics"],
+        "validation_metrics": validation_metrics,
+        "validation_comparison": comparison,
+        "baseline_test_metrics": baseline_metrics,
+        "split_sizes": {"train": len(x_train), "validation": len(x_validation), "test": len(x_test)},
         "model_path": str(model_path),
         "metrics_path": str(metrics_path),
         "model_card_path": str(model_card_path),

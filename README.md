@@ -1,5 +1,8 @@
 # MLflow End-to-End ML Pipeline
 
+[Verification record](docs/VERIFICATION.md) · [Measured evaluation](docs/EVALUATION.md) · [Local demo](docs/DEMO.md)
+
+
 This repository is a clean, portfolio-ready starter project for an end-to-end machine learning workflow. It trains a sample customer churn classifier, tracks experiments with MLflow, saves the best local model artifact, and exposes predictions through a FastAPI service.
 
 The dataset is generated synthetically in code. It is intended for demonstrating engineering workflow, testing, and model lifecycle practices without committing private or sensitive data.
@@ -45,6 +48,8 @@ Generated sample data
 ```
 
 ## Setup
+
+Use Python 3.12. Run these commands from the repository root in a fresh virtual environment.
 
 ```bash
 python -m venv .venv
@@ -160,9 +165,9 @@ docker run -p 8000:8000 mlflow-end-to-end-ml-pipeline
 
 The container expects a trained model artifact to be present in `models/` at build time or mounted at runtime.
 
-## Demo Placeholder
+## Recorded local demo
 
-Screenshots or a short demo GIF can be added after running the API and MLflow UI with generated sample data only.
+An executed inference request and reproducible prediction output are included in [the demo guide](docs/DEMO.md).
 
 ## Honest Project Status
 

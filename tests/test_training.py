@@ -24,3 +24,8 @@ def test_training_pipeline_creates_model_artifacts(tmp_path, monkeypatch):
     assert Path(result["model_path"]).exists()
     assert Path(result["metrics_path"]).exists()
     assert result["metrics"]["f1"] >= 0.0
+
+    assert result["split_sizes"] == {"train": 72, "validation": 24, "test": 24}
+    selected = max(result["validation_comparison"], key=lambda name: result["validation_comparison"][name]["f1"])
+    assert result["best_model"] == selected
+    assert "roc_auc" in result["baseline_test_metrics"]

@@ -33,7 +33,7 @@ def save_model_card(model_name: str, metrics: dict) -> Path:
         "This model is trained on generated sample churn data for demonstration.",
         "It is not intended for real customer decisions.",
         "",
-        "## Metrics",
+        "## Held-out test metrics",
         "",
     ]
     lines.extend(f"- {key}: {value:.4f}" for key, value in metrics.items() if isinstance(value, float))
